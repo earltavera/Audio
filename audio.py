@@ -6,7 +6,7 @@ import os
 
 # --- CONFIGURATION ---
 # Replace with your actual API key from the AssemblyAI dashboard
-aai.settings.api_key = "YOUR_ASSEMBLYAI_API_KEY"
+aai.settings.api_key = "b9bb4fd14d1d4d56ac08701e7ccc6918"
 
 st.set_page_config(page_title="Zendesk AU Transcriber", page_icon="🎧", layout="wide")
 
