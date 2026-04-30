@@ -47,6 +47,7 @@ if audio:
             # Configure for AU English + Support Context + Speaker Labels
             # Note: punctuation and text formatting are now ON by default.
             config = aai.TranscriptionConfig(
+                speech_models=["universal-3-pro", "universal-2"],
                 language_code="en_au",
                 speaker_labels=True,  # Separates Agent and Customer
                 word_boost=["Zendesk", "ticket", "account", "refund", "Melbourne", "Sydney"]
