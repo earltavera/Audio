@@ -9,7 +9,7 @@ import os
 def load_model():
     return whisper.load_model("base")
 
-model = load_model()
+model = whisper.load_model("tiny")
 
 st.title("🎙️ Audio Transcriber")
 st.write("Record your voice or system audio (via your mic) to transcribe.")
