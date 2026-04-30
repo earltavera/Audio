@@ -4,17 +4,18 @@ import whisper
 import tempfile
 import os
 
-# Load Whisper
+# 1. Properly cache the model loading
 @st.cache_resource
-def load_model():
-    return whisper.load_model("base")
+def load_whisper_model():
+    # 'tiny' is best for Streamlit Cloud's memory limits
+    return whisper.load_model("tiny")
 
-model = whisper.load_model("tiny")
+model = load_whisper_model()
 
 st.title("🎙️ Audio Transcriber")
 st.write("Record your voice or system audio (via your mic) to transcribe.")
 
-# This creates a recording button in the browser
+# 2. Browser-based recording
 audio = mic_recorder(
     start_prompt="Start Recording",
     stop_prompt="Stop Recording",
@@ -22,18 +23,28 @@ audio = mic_recorder(
 )
 
 if audio:
+    # Display the audio player so you can hear what was recorded
     st.audio(audio['bytes'])
     
-    # Save the recorded bytes to a temporary file
+    # 3. Create a temporary file to hold the audio bytes
+    # Whisper's transcribe function requires a file path string
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
         tmp_file.write(audio['bytes'])
         tmp_path = tmp_file.name
 
-    with st.spinner("Transcribing..."):
-        # Transcribe
-        result = model.transcribe(tmp_path)
-        st.subheader("Transcription:")
-        st.success(result["text"])
-
-    # Cleanup
-    os.remove(tmp_path)
+    try:
+        with st.spinner("Transcribing..."):
+            # 4. Perform transcription
+            # fp16=False prevents a common CPU-only warning on cloud servers
+            result = model.transcribe(tmp_path, fp16=False)
+            
+            st.subheader("Transcription:")
+            # Use a text area so users can easily copy the text
+            st.text_area("Result:", value=result["text"], height=200)
+            st.success("Done!")
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+    finally:
+        # 5. Ensure the temp file is deleted even if transcription fails
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
