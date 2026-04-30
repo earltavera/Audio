@@ -6,7 +6,7 @@ import os
 
 # --- CONFIGURATION ---
 # Replace with your actual API key from the AssemblyAI dashboard
-aai.settings.api_key = "b9bb4fd14d1d4d56ac08701e7ccc6918"
+aai.settings.api_key = "YOUR_ASSEMBLYAI_API_KEY"
 
 st.set_page_config(page_title="Zendesk AU Transcriber", page_icon="🎧", layout="wide")
 
@@ -45,12 +45,11 @@ if audio:
         with st.spinner("🚀 AI is analyzing the Australian accent and speaker roles..."):
             
             # Configure for AU English + Support Context + Speaker Labels
+            # Note: punctuation and text formatting are now ON by default.
             config = aai.TranscriptionConfig(
                 language_code="en_au",
                 speaker_labels=True,  # Separates Agent and Customer
-                word_boost=["Zendesk", "ticket", "account", "refund", "Melbourne", "Sydney"],
-                punctuation_src="automatic",
-                format_text=True
+                word_boost=["Zendesk", "ticket", "account", "refund", "Melbourne", "Sydney"]
             )
 
             transcriber = aai.Transcriber()
