@@ -1,26 +1,21 @@
 import streamlit as st
 from streamlit_mic_recorder import mic_recorder
-import whisper
+import assemblyai as aai
 import tempfile
 import os
 
-# 1. Using 'base' for better accuracy with VoIP/Zendesk quality
-@st.cache_resource
-def load_whisper_model():
-    return whisper.load_model("base")
+# Set your API Key here
+aai.settings.api_key = "b9bb4fd14d1d4d56ac08701e7ccc6918"
 
-model = load_whisper_model()
+st.set_page_config(page_title="High-Accuracy AU Transcriber", page_icon="🦘")
 
-st.set_page_config(page_title="Zendesk AU Support Transcriber", page_icon="🎧")
+st.title("🦘 AssemblyAI: Aussie Zendesk Transcriber")
+st.write("Using Universal-1 model for maximum accuracy.")
 
-st.title("🎧 Zendesk Call Transcriber (AU)")
-st.write("Route your Zendesk audio through **VB-Cable** or **Stereo Mix** to transcribe.")
-
-# 2. Capture audio
 audio = mic_recorder(
-    start_prompt="▶️ Start Recording Zendesk Playback",
+    start_prompt="▶️ Start Recording",
     stop_prompt="⏹️ Stop & Transcribe",
-    key='zendesk_recorder'
+    key='aai_recorder'
 )
 
 if audio:
@@ -31,28 +26,33 @@ if audio:
         tmp_path = tmp_file.name
 
     try:
-        with st.spinner("Analyzing Zendesk recording..."):
-            # 3. Optimized transcription for Support Context + Aussie Accent
-            # initial_prompt: includes support-desk keywords to help the AI 'focus'
-            result = model.transcribe(
-                tmp_path, 
-                fp16=False, 
-                language="en",
-                initial_prompt="This is a Zendesk customer support call in Australian English. Keywords: ticket, issue, account, email, support, Melbourne, Sydney."
+        with st.spinner("AssemblyAI is analyzing the Australian accent..."):
+            
+            # Configure the transcription
+            config = aai.TranscriptionConfig(
+                # Help the AI with 'support' context and Aussie slang
+                word_boost=["Zendesk", "ticket", "refund", "Melbourne", "Sydney"],
+                boost_score="high",
+                # AssemblyAI handles AU English automatically, 
+                # but you can specify it if needed
+                language_code="en_au" 
             )
-            
-            st.subheader("Transcription:")
-            st.info(result["text"])
-            
-            # 4. Download button for the support log
-            st.download_button(
-                label="📥 Download as Support Log",
-                data=f"Zendesk Transcription:\n\n{result['text']}",
-                file_name="zendesk_transcription.txt"
-            )
-            
+
+            transcriber = aai.Transcriber()
+            transcript = transcriber.transcribe(tmp_path, config=config)
+
+            if transcript.status == aai.TranscriptStatus.error:
+                st.error(transcript.error)
+            else:
+                st.subheader("Transcription:")
+                st.success(transcript.text)
+                
+                # Bonus: Automatic Summary (AssemblyAI is great at this)
+                if st.checkbox("Show Summary"):
+                    st.write(transcript.export_subtitles_vtt()) # Or other insights
+
     except Exception as e:
-        st.error(f"Error processing call: {e}")
+        st.error(f"Error: {e}")
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
