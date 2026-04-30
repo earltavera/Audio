@@ -4,59 +4,55 @@ import whisper
 import tempfile
 import os
 
-# 1. Load the model (Tiny is fastest for Windows/Cloud testing)
+# 1. Using 'base' for better accuracy with VoIP/Zendesk quality
 @st.cache_resource
 def load_whisper_model():
-    return whisper.load_model("tiny")
+    return whisper.load_model("base")
 
 model = load_whisper_model()
 
-st.set_page_config(page_title="Windows System Audio Transcriber", page_icon="🔊")
+st.set_page_config(page_title="Zendesk AU Support Transcriber", page_icon="🎧")
 
-st.title("🔊 Windows System Audio Transcriber")
-st.markdown("""
-### 🛠️ Setup Instructions for Windows:
-1. Enable **Stereo Mix** in your Windows Sound Control Panel.
-2. Set **Stereo Mix** as your default recording device.
-3. Use the recorder below. The browser will capture whatever is playing on your PC.
-""")
+st.title("🎧 Zendesk Call Transcriber (AU)")
+st.write("Route your Zendesk audio through **VB-Cable** or **Stereo Mix** to transcribe.")
 
-# 2. Capture audio from the browser
-# mic_recorder captures the default recording device (Stereo Mix)
+# 2. Capture audio
 audio = mic_recorder(
-    start_prompt="▶️ Start Recording System Sound",
+    start_prompt="▶️ Start Recording Zendesk Playback",
     stop_prompt="⏹️ Stop & Transcribe",
-    key='windows_recorder'
+    key='zendesk_recorder'
 )
 
 if audio:
-    # Display the captured audio to verify it worked
     st.audio(audio['bytes'])
     
-    # 3. Create temp file for Whisper
     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
         tmp_file.write(audio['bytes'])
         tmp_path = tmp_file.name
 
     try:
-        with st.spinner("Whisper is listening to the recording..."):
-            # Transcribe (fp16=False ensures it runs on CPU without errors)
-            result = model.transcribe(tmp_path, fp16=False)
+        with st.spinner("Analyzing Zendesk recording..."):
+            # 3. Optimized transcription for Support Context + Aussie Accent
+            # initial_prompt: includes support-desk keywords to help the AI 'focus'
+            result = model.transcribe(
+                tmp_path, 
+                fp16=False, 
+                language="en",
+                initial_prompt="This is a Zendesk customer support call in Australian English. Keywords: ticket, issue, account, email, support, Melbourne, Sydney."
+            )
             
             st.subheader("Transcription:")
-            # Display result in a nice box
-            st.text_area("Final Text", value=result["text"], height=250)
+            st.info(result["text"])
             
-            # 4. Download Option
+            # 4. Download button for the support log
             st.download_button(
-                label="📥 Download Transcription (.txt)",
-                data=result["text"],
-                file_name="system_audio_transcription.txt",
-                mime="text/plain"
+                label="📥 Download as Support Log",
+                data=f"Zendesk Transcription:\n\n{result['text']}",
+                file_name="zendesk_transcription.txt"
             )
             
     except Exception as e:
-        st.error(f"Transcription failed: {e}")
+        st.error(f"Error processing call: {e}")
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
