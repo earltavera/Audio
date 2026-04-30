@@ -5,7 +5,7 @@ import tempfile
 import os
 
 # Set your API Key here
-aai.settings.api_key = "b9bb4fd14d1d4d56ac08701e7ccc6918"
+aai.settings.api_key = "YOUR_ASSEMBLYAI_API_KEY"
 
 st.set_page_config(page_title="High-Accuracy AU Transcriber", page_icon="🦘")
 
