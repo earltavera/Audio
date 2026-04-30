@@ -1,6 +1,4 @@
 streamlit
 streamlit-mic-recorder
 openai-whisper
-numpy
-torch
-ffmpeg
+setuptools
