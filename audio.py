@@ -49,7 +49,7 @@ if audio:
             config = aai.TranscriptionConfig(
                 speech_models=["universal-3-pro", "universal-2"],
                 language_code="en_au",
-                speaker_labels=True,  # Separates Agent and Customer
+                speaker_labels=True,  # Separates two Speakers
                 word_boost=["Zendesk", "ticket", "account", "refund", "Melbourne", "Sydney"]
             )
 
