@@ -25,7 +25,7 @@ col1, col2 = st.columns([1, 1])
 with col1:
     st.subheader("Capture Audio")
     audio = mic_recorder(
-        start_prompt="▶️ Start Recording System Audio",
+        start_prompt="🔴 Start Recording",
         stop_prompt="⏹️ Stop & Transcribe",
         key='zendesk_recorder'
     )
