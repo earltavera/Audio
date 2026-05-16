@@ -11,7 +11,7 @@ aai.settings.api_key = "b9bb4fd14d1d4d56ac08701e7ccc6918"
 st.set_page_config(page_title="Zendesk AU Transcriber", page_icon="🎧", layout="wide")
 
 # --- UI HEADER ---
-st.title("🎧 Zendesk Australian Call Transcriber")
+st.title("🎧 Zendesk Audio Transcriber")
 st.markdown("""
 ### 🛠️ Windows Setup:
 1. Set your **Windows Output** to **VB-Cable Input** (or use Stereo Mix).
